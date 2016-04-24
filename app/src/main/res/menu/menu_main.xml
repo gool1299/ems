@@ -7,4 +7,9 @@
         android:orderInCategory="100"
         android:title="Acerca de"
         app:showAsAction="never"/>
+    <item
+        android:id="@+id/action_settings_disclaimer"
+        android:orderInCategory="100"
+        android:title="Aviso"
+        app:showAsAction="never"/>
 </menu>

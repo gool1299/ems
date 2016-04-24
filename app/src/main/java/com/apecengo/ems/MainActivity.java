@@ -1,9 +1,11 @@
 package com.apecengo.ems;
 
+import android.content.Context;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.os.Bundle;
 import android.os.CountDownTimer;
+import android.os.Vibrator;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
@@ -24,10 +26,10 @@ import butterknife.OnClick;
 
 public class MainActivity extends AppCompatActivity {
 
-    @Bind(R.id.contador_toxicidad) TextView mToxicidadTextView;
-    @Bind(R.id.timer_text_view) TextView mTimerTextView;
     @Bind(R.id.toxicidad_card) CardView mToxicidadCardView;
     @Bind(R.id.texto_toxicidad) TextView mTextoToxicidad;
+    @Bind(R.id.contador_toxicidad) TextView mToxicidadTextView;
+    @Bind(R.id.timer_text_view) TextView mTimerTextView;
 
     @Bind(R.id.boton_morfina) Button mButtonMorfina;
     @Bind(R.id.boton_epidefrina) Button mButtonEpidefrina;
@@ -73,28 +75,12 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        ButterKnife.bind(this);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        ButterKnife.bind(this);
 
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
-
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });
-
-
-        new MaterialDialog.Builder(this)
-                .title("Descargo de responsabilidad")
-                .content("Esta aplicación usa los conocimientos del EMS sobre la toxicidad. Sin embargo, todavía quedan muchos factores sobre el funcionamiento sin confirmar. Esta información debe ser considerada una aproximación.")
-                .positiveText("Acepto")
-                .show();
 
     }
 
@@ -130,32 +116,24 @@ public class MainActivity extends AppCompatActivity {
         countDownTimer = null;
     }
 
+    public void setColors(String fondo, String textoToxicidad, String textos) {
+        mToxicidadCardView.setCardBackgroundColor(Color.parseColor(fondo));
+        mToxicidadTextView.setTextColor(Color.parseColor(textoToxicidad));
+        mTextoToxicidad.setTextColor(Color.parseColor(textos));
+        mTimerTextView.setTextColor(Color.parseColor(textos));
+    }
+
     public void actualizarEstilos() {
         if (getToxicidad() >= 100) {
-            mToxicidadCardView.setCardBackgroundColor(Color.parseColor("#3e2723"));
-            mToxicidadTextView.setTextColor(Color.parseColor("#e57373"));
-            mTextoToxicidad.setTextColor(Color.parseColor("#ffffff"));
-            mTimerTextView.setTextColor(Color.parseColor("#ffffff"));
+            setColors("#3e2723", "#e57373", "#ffffff");
         } else if (getToxicidad() >= 70) {
-            mToxicidadCardView.setCardBackgroundColor(Color.parseColor("#b71c1c"));
-            mToxicidadTextView.setTextColor(Color.parseColor("#ffffff"));
-            mTextoToxicidad.setTextColor(Color.parseColor("#ffffff"));
-            mTimerTextView.setTextColor(Color.parseColor("#ffffff"));
+            setColors("#b71c1c", "#ffffff", "#ffffff");
         } else if (getToxicidad() >= 50) {
-            mToxicidadCardView.setCardBackgroundColor(Color.parseColor("#ef6c00"));
-            mToxicidadTextView.setTextColor(Color.parseColor("#ffffff"));
-            mTextoToxicidad.setTextColor(Color.parseColor("#ffffff"));
-            mTimerTextView.setTextColor(Color.parseColor("#ffffff"));
+            setColors("#ef6c00", "#ffffff", "#ffffff");
         } else if (getToxicidad() >= 20) {
-            mToxicidadCardView.setCardBackgroundColor(Color.parseColor("#0277bd"));
-            mToxicidadTextView.setTextColor(Color.parseColor("#ffffff"));
-            mTextoToxicidad.setTextColor(Color.parseColor("#ffffff"));
-            mTimerTextView.setTextColor(Color.parseColor("#ffffff"));
+            setColors("#0277bd", "#ffffff", "#ffffff");
         } else {
-            mToxicidadCardView.setCardBackgroundColor(Color.parseColor("#ffffff"));
-            mToxicidadTextView.setTextColor(Color.parseColor("#000000"));
-            mTextoToxicidad.setTextColor(Color.parseColor("#000000"));
-            mTimerTextView.setTextColor(Color.parseColor("#000000"));
+            setColors("#ffffff", "#000000", "#000000");
         }
 
         if (getToxicidad() >= 50) {
@@ -214,12 +192,27 @@ public class MainActivity extends AppCompatActivity {
                     .content("Esta aplicación ha sido creada para el EMS de PoPlife por Manolo Pérez (Apecengo). Versión " + BuildConfig.VERSION_NAME)
                     .positiveText("Cerrar")
                     .show();
+        } else if (id == R.id.action_settings_disclaimer) {
+
+        // Deshabilitado por el momento. TODO: Que sólo aparezca la primera vez.
+            new MaterialDialog.Builder(this)
+                    .title("Descargo de responsabilidad")
+                    .content("Esta aplicación usa los conocimientos del EMS sobre la toxicidad. Sin embargo, todavía quedan muchos factores sobre el funcionamiento sin confirmar. Esta información debe ser considerada una aproximación.")
+                    .positiveText("Acepto")
+                    .show();
         }
 
         return super.onOptionsItemSelected(item);
     }
 
 
+    public void vibrar(int tiempo) {
+        // Get instance of Vibrator from current Context https://stackoverflow.com/questions/13950338/how-to-make-an-android-device-vibrate
+        Vibrator v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+
+        // Vibrate for 100 milliseconds
+        v.vibrate(tiempo);
+    }
 
     public void cuentaAtras() {
             if (countDownTimer == null) {
@@ -229,6 +222,7 @@ public class MainActivity extends AppCompatActivity {
                         if (getToxicidad() <= 0) {
                             this.cancel();
                             countDownTimer = null;
+                            vibrar(150);
                         } else {
                             mTimerTextView.setText("" + millisUntilFinished / 1000);
                         }
@@ -237,6 +231,8 @@ public class MainActivity extends AppCompatActivity {
                     public void onFinish() {
                         mTimerTextView.setText("0");
                         quitarToxicidad(10);
+
+                        vibrar(50);
                         this.start();
                     }
                 }.start();
