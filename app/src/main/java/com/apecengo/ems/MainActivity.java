@@ -6,14 +6,12 @@ import android.graphics.PorterDuff;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Vibrator;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.Toolbar;
-import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.TextView;
@@ -36,11 +34,26 @@ public class MainActivity extends AppCompatActivity {
     @Bind(R.id.boton_tramadol) Button mButtonTramadol;
     @Bind(R.id.boton_sangre) Button mButtonSangre;
 
+    private VisibilityManager mVisibilityManager = new VisibilityManager();
+
     private int mToxicidad = 0;
+    private boolean mVibrationEnabled = true;
     CountDownTimer countDownTimer;
 
 
+    @Override
+    protected void onResume() {
+        super.onResume();
 
+        mVisibilityManager.setIsVisible(true);
+    }
+
+    @Override
+    protected void onPause() {
+        mVisibilityManager.setIsVisible(false);
+
+        super.onPause();
+    }
 
     public int getToxicidad() {
         return mToxicidad;
@@ -49,7 +62,7 @@ public class MainActivity extends AppCompatActivity {
     public void setToxicidad(int toxicidad) {
         mToxicidad = toxicidad;
         mToxicidadTextView.setText("" + Integer.toString(mToxicidad));
-        cuentaAtras();
+        countDown();
         actualizarEstilos();
     }
 
@@ -65,7 +78,7 @@ public class MainActivity extends AppCompatActivity {
             }
         } else {
             setToxicidad(getToxicidad() - toxicidad);
-            cuentaAtras();
+            countDown();
         }
     }
 
@@ -78,6 +91,7 @@ public class MainActivity extends AppCompatActivity {
         ButterKnife.bind(this);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
 
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
@@ -184,37 +198,70 @@ public class MainActivity extends AppCompatActivity {
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
+        switch (item.getItemId()) {
 
-            new MaterialDialog.Builder(this)
-                    .title("Acerca de")
-                    .content("Esta aplicación ha sido creada para el EMS de PoPlife por Manolo Pérez (Apecengo). Versión " + BuildConfig.VERSION_NAME)
-                    .positiveText("Cerrar")
-                    .show();
-        } else if (id == R.id.action_settings_disclaimer) {
+            case R.id.action_settings:
 
-        // Deshabilitado por el momento. TODO: Que sólo aparezca la primera vez.
-            new MaterialDialog.Builder(this)
-                    .title("Descargo de responsabilidad")
-                    .content("Esta aplicación usa los conocimientos del EMS sobre la toxicidad. Sin embargo, todavía quedan muchos factores sobre el funcionamiento sin confirmar. Esta información debe ser considerada una aproximación.")
-                    .positiveText("Acepto")
-                    .show();
+                new MaterialDialog.Builder(this)
+                        .title("Acerca de")
+                        .content("Esta aplicación ha sido creada para el EMS de PoPlife por Manolo Pérez (Apecengo). Versión " + BuildConfig.VERSION_NAME)
+                        .positiveText("Cerrar")
+                        .show();
+
+                return false;
+            case R.id.action_settings_disclaimer:
+
+                // Deshabilitado por el momento. TODO: Que sólo aparezca la primera vez.
+                new MaterialDialog.Builder(this)
+                        .title("Descargo de responsabilidad")
+                        .content("Esta aplicación usa los conocimientos del EMS sobre la toxicidad. Sin embargo, todavía quedan muchos factores sobre el funcionamiento sin confirmar. Esta información debe ser considerada una aproximación.")
+                        .positiveText("Acepto")
+                        .show();
+
+                return false;
+
+            case R.id.action_settings_vibration:
+                if (item.isChecked()) {
+                    item.setChecked(false);
+                    mVibrationEnabled = false;
+                } else {
+                    item.setChecked(true);
+                    mVibrationEnabled = true;
+                }
+
+                return false;
+
+            default:
+                return false;
+
         }
 
-        return super.onOptionsItemSelected(item);
+
+
     }
 
+    public boolean shouldVibrate() {
+        if (!mVibrationEnabled) {
+            return false;
+        }
+        if (!mVisibilityManager.isIsVisible()) {
+            return false;
+        }
 
-    public void vibrar(int tiempo) {
-        // Get instance of Vibrator from current Context https://stackoverflow.com/questions/13950338/how-to-make-an-android-device-vibrate
-        Vibrator v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
-
-        // Vibrate for 100 milliseconds
-        v.vibrate(tiempo);
+        return true;
     }
 
-    public void cuentaAtras() {
+    public void vibrate(int time) {
+        if(shouldVibrate()) {
+            // Get instance of Vibrator from current Context https://stackoverflow.com/questions/13950338/how-to-make-an-android-device-vibrate
+            Vibrator v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+
+            // Vibrate for 100 milliseconds
+            v.vibrate(time);
+        }
+    }
+
+    public void countDown() {
             if (countDownTimer == null) {
                 countDownTimer = new CountDownTimer(26000, 1000) {
 
@@ -222,7 +269,9 @@ public class MainActivity extends AppCompatActivity {
                         if (getToxicidad() <= 0) {
                             this.cancel();
                             countDownTimer = null;
-                            vibrar(150);
+                            if(shouldVibrate()) {
+                                vibrate(150);
+                            }
                         } else {
                             mTimerTextView.setText("" + millisUntilFinished / 1000);
                         }
@@ -232,7 +281,7 @@ public class MainActivity extends AppCompatActivity {
                         mTimerTextView.setText("0");
                         quitarToxicidad(10);
 
-                        vibrar(50);
+                        vibrate(50);
                         this.start();
                     }
                 }.start();

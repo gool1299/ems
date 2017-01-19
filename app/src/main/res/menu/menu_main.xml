@@ -11,5 +11,14 @@
         android:id="@+id/action_settings_disclaimer"
         android:orderInCategory="100"
         android:title="Aviso"
-        app:showAsAction="never"/>
+        app:showAsAction="never"
+        android:visible="false" />
+    <item
+        android:id="@+id/action_settings_vibration"
+        android:title="Vibración"
+        app:showAsAction="never"
+        android:checkable="true"
+        android:checked="true"
+        />
+
 </menu>
