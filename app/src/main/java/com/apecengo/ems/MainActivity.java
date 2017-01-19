@@ -212,7 +212,7 @@ public class MainActivity extends AppCompatActivity {
 
                 new MaterialDialog.Builder(this)
                         .title("Acerca de")
-                        .content("Esta aplicación ha sido creada para el EMS de PoPlife por Manolo Pérez (Apecengo). Versión " + BuildConfig.VERSION_NAME)
+                        .content("Esta aplicación ha sido creada para la EMS de PoPlife por Manolo Pérez (Apecengo). \n\nVersión " + BuildConfig.VERSION_NAME)
                         .positiveText("Cerrar")
                         .show();
 
