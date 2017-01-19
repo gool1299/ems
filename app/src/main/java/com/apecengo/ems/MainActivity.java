@@ -36,6 +36,8 @@ public class MainActivity extends AppCompatActivity {
 
     private VisibilityManager mVisibilityManager = new VisibilityManager();
 
+    private static final int TOXICIDAD_MAX = 130;
+
     private int mToxicidad = 0;
     private boolean mVibrationEnabled = true;
     CountDownTimer countDownTimer;
@@ -60,14 +62,21 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void setToxicidad(int toxicidad) {
-        mToxicidad = toxicidad;
-        mToxicidadTextView.setText("" + Integer.toString(mToxicidad));
+        if (toxicidad >= TOXICIDAD_MAX) {
+            mToxicidad = TOXICIDAD_MAX;
+            mToxicidadTextView.setText("DEP");
+        } else {
+            mToxicidad = toxicidad;
+            mToxicidadTextView.setText("" + Integer.toString(mToxicidad));
+        }
         countDown();
         actualizarEstilos();
     }
 
     public void addToxicidad(int toxicidad) {
-        setToxicidad(toxicidad + getToxicidad());
+        if(!(getToxicidad() >= TOXICIDAD_MAX)) {
+            setToxicidad(toxicidad + getToxicidad());
+        }
     }
 
     public void quitarToxicidad(int toxicidad) {
