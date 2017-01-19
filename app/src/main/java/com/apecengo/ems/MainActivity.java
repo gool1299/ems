@@ -36,6 +36,8 @@ public class MainActivity extends AppCompatActivity {
 
     private VisibilityManager mVisibilityManager = new VisibilityManager();
 
+    private static final int TOXICIDAD_MAX = 140;
+
     private int mToxicidad = 0;
     private boolean mVibrationEnabled = true;
     CountDownTimer countDownTimer;
@@ -60,14 +62,20 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void setToxicidad(int toxicidad) {
-        mToxicidad = toxicidad;
+        if (toxicidad >= TOXICIDAD_MAX) {
+            mToxicidad = TOXICIDAD_MAX;
+        } else {
+            mToxicidad = toxicidad;
+        }
         mToxicidadTextView.setText("" + Integer.toString(mToxicidad));
         countDown();
         actualizarEstilos();
     }
 
     public void addToxicidad(int toxicidad) {
-        setToxicidad(toxicidad + getToxicidad());
+        if(!(getToxicidad() >= TOXICIDAD_MAX)) {
+            setToxicidad(toxicidad + getToxicidad());
+        }
     }
 
     public void quitarToxicidad(int toxicidad) {
@@ -204,7 +212,7 @@ public class MainActivity extends AppCompatActivity {
 
                 new MaterialDialog.Builder(this)
                         .title("Acerca de")
-                        .content("Esta aplicación ha sido creada para el EMS de PoPlife por Manolo Pérez (Apecengo). Versión " + BuildConfig.VERSION_NAME)
+                        .content("Esta aplicación ha sido creada para la EMS de PoPlife por Manolo Pérez (Apecengo). \n\nVersión " + BuildConfig.VERSION_NAME)
                         .positiveText("Cerrar")
                         .show();
 
