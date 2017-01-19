@@ -36,7 +36,7 @@ public class MainActivity extends AppCompatActivity {
 
     private VisibilityManager mVisibilityManager = new VisibilityManager();
 
-    private static final int TOXICIDAD_MAX = 130;
+    private static final int TOXICIDAD_MAX = 140;
 
     private int mToxicidad = 0;
     private boolean mVibrationEnabled = true;
@@ -64,11 +64,10 @@ public class MainActivity extends AppCompatActivity {
     public void setToxicidad(int toxicidad) {
         if (toxicidad >= TOXICIDAD_MAX) {
             mToxicidad = TOXICIDAD_MAX;
-            mToxicidadTextView.setText("DEP");
         } else {
             mToxicidad = toxicidad;
-            mToxicidadTextView.setText("" + Integer.toString(mToxicidad));
         }
+        mToxicidadTextView.setText("" + Integer.toString(mToxicidad));
         countDown();
         actualizarEstilos();
     }
